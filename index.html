@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Tech Tree</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #111;
+    color: #eee;
+  }
+
+  .tree {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 20px;
+  }
+
+  .node {
+    border: 1px solid #444;
+    padding: 10px;
+    width: 180px;
+    cursor: pointer;
+    background: #1b1b1b;
+    border-radius: 8px;
+  }
+
+  .node.locked {
+    opacity: 0.4;
+  }
+
+  .node.active {
+    border-color: #4caf50;
+  }
+
+  .node h3 {
+    margin: 0 0 5px;
+    font-size: 16px;
+  }
+
+  .node p {
+    font-size: 12px;
+  }
+</style>
+</head>
+<body>
+
+<h1 style="padding:20px;">Tech Tree</h1>
+<div id="tree" class="tree"></div>
+
+<script>
+const TECHS = [
+  { id:"tech_ancient_era", name:"Ancient Era", desc:"Unlocks Policies", req:null },
+  { id:"tech_belief", name:"Belief", desc:"Unlocks Monument", req:"tech_ancient_era" },
+  { id:"tech_mining", name:"Mining", desc:"Unlocks Trommel", req:"tech_belief" },
+  { id:"tech_agriculture", name:"Agriculture", desc:"Unlocks Farm", req:"tech_belief" }
+];
+
+let unlocked = new Set();
+
+function isUnlocked(tech) {
+  if (!tech.req) return true;
+
+  // поддержка нескольких требований через "/"
+  return tech.req.split("/").every(r => unlocked.has(r));
+}
+
+function render() {
+  const container = document.getElementById("tree");
+  container.innerHTML = "";
+
+  TECHS.forEach(tech => {
+    const div = document.createElement("div");
+    div.className = "node";
+
+    if (!isUnlocked(tech)) {
+      div.classList.add("locked");
+    }
+
+    if (unlocked.has(tech.id)) {
+      div.classList.add("active");
+    }
+
+    div.innerHTML = `
+      <h3>${tech.name}</h3>
+      <p>${tech.desc}</p>
+    `;
+
+    div.onclick = () => {
+      if (isUnlocked(tech)) {
+        unlocked.add(tech.id);
+        render();
+      }
+    };
+
+    container.appendChild(div);
+  });
+}
+
+render();
+</script>
+
+</body>
+</html>
